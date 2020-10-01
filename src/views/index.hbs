@@ -1,0 +1,76 @@
+{{> head }}
+    <div class="container">
+        <h2 class="mt-4 text-center">Scan your image </h2>
+        
+            <div class="input-group mb-3 mt-4">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">Upload</span>
+                </div>
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="inputGroupFile01">
+                    <label class="custom-file-label" id="label" for="inputGroupFile01">Choose file</label>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md">
+                    <img id="imgup" src="" class="img-fluid d-none" alt="your image" />
+                </div>
+                <div class="col-md">
+                    <div id="ocrData" class="d-none">
+                        <h5 class="mb-3">OCR Result</h5>
+                        <p id="result"></p>
+                    </div>
+                </div>
+            </div>
+            <center>
+                <button class="btn btn-primary mt-4" id="submit" onclick="scan()" type="submit">Scan</button>
+            </center>
+
+    </div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script>
+        const idInput = document.getElementById('inputGroupFile01')
+        const label =  document.getElementById('label')
+
+        idInput.addEventListener('change', (e) => {
+            label.innerText = e.target.files.length == 0 ? 'Choose file' : e.target.files[0].name
+
+            if (e.target.files && e.target.files[0]) {
+                var reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    $('#imgup').removeClass("d-none");
+                    $('#imgup').attr('src', e.target.result);
+                }
+                
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        })
+
+        const scan = () => {
+            $('#submit').text('Loading...')
+
+            const fd = new FormData();
+            const file = $("#inputGroupFile01")[0].files[0]
+            fd.append('ocr', file)
+
+            jQuery.ajax({
+                type: 'POST',
+                url:"/",
+                data: fd,
+                processData: false, 
+                contentType: false, 
+                success: function(returnval) {
+                    $('#submit').text('Scan')
+                    $('#ocrData').removeClass("d-none");
+                    $('#result').text(returnval.result)
+                }
+            });
+        }
+    </script>
+</body>
+</html>
